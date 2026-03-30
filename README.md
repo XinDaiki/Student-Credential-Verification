@@ -1,7 +1,3 @@
-
-// ================= README.md =================
-
-/*
 # 🎓 Blockchain Student Credential Verification
 
 ![Rust](https://img.shields.io/badge/Rust-Programming-orange)
