@@ -1,4 +1,10 @@
 # 🎓 Blockchain Student Credential Verification
+### 🔐 1. Admin Authentication
+Only authorized school accounts can issue certificates.
+
+### 🆔 2. Unique Certificate ID
+Each certificate uses a unique ID instead of just a name.
+
 ### 🔗 3. Hash Verification
 Use SHA-256 hashing to ensure data integrity.
 
@@ -77,6 +83,7 @@ This project demonstrates:
 ## 👨‍💻 Author
 
 ![License](https://img.shields.io/badge/License-MIT-green)
+KIEL ANTHONY VILLANUEVA
 
 MIT License © 2026
 
