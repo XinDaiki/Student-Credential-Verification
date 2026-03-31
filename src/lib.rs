@@ -1,33 +1,47 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, symbol_short, Env, Symbol};
+
+use soroban_sdk::{
+    contract, contractimpl, symbol_short, Env, Symbol, String, Map, BytesN
+};
 
 #[contract]
-pub struct AllowanceTracker;
+pub struct StudentCred;
 
-const BALANCE: Symbol = symbol_short!("BALANCE");
+const STUDENTS: Symbol = symbol_short!("STUDENTS");
 
 #[contractimpl]
-impl AllowanceTracker {
-    // Sets the initial stipend amount
-    pub fn init(env: Env, total: u32) {
-        env.storage().instance().set(&BALANCE, &total);
+impl StudentCred {
+    //  Add student
+    pub fn add_student(env: Env, name: String, course: String) -> BytesN<32> {
+        let mut students: Map<BytesN<32>, String> =
+            env.storage().instance().get(&STUDENTS).unwrap_or(Map::new(&env));
+
+        let hash = Self::generate_hash(&env, &name, &course);
+
+        students.set(hash.clone(), name.clone());
+        env.storage().instance().set(&STUDENTS, &students);
+
+        hash
     }
 
-    // Deducts the claimed amount from the total if there are enough funds
-    pub fn claim(env: Env, amount: u32) {
-        let mut current: u32 = env.storage().instance().get(&BALANCE).unwrap_or(0);
-        if current >= amount {
-            current -= amount;
-            env.storage().instance().set(&BALANCE, &current);
-        } else {
-            panic!("Insufficient funds");
-        }
+    // Verify
+    pub fn verify(env: Env, hash: BytesN<32>) -> bool {
+        let students: Map<BytesN<32>, String> =
+            env.storage().instance().get(&STUDENTS).unwrap_or(Map::new(&env));
+
+        students.contains_key(hash)
     }
 
-    // Returns the current balance
-    pub fn get_bal(env: Env) -> u32 {
-        env.storage().instance().get(&BALANCE).unwrap_or(0)
-    }
+    // HASH FUNCTION (FIXED)
+    fn generate_hash(env: &Env, name: &String, course: &String) -> BytesN<32> {
+    let mut bytes = name.to_bytes();
+
+    let dash = String::from_str(env, "-").to_bytes();
+    let course_bytes = course.to_bytes();
+
+    bytes.append(&dash);
+    bytes.append(&course_bytes);
+
+    env.crypto().sha256(&bytes).into()
 }
-
-mod test;
+}
